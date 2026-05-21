@@ -1,0 +1,101 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{JEE Project: Backend Development Report}
+\author{Gemini CLI Assistant}
+\date{May 21, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This report details the backend implementation of the JEE Student Management Project. The backend is built using Jakarta EE 10, leveraging JAX-RS for RESTful services, JPA for persistence, and EJB for business logic.
+
+\section{Project Architecture}
+The backend follows a layered architecture to ensure separation of concerns:
+\begin{itemize}
+    \item \textbf{Entity Layer}: JPA entities representing the database schema.
+    \item \textbf{Repository Layer}: EJB-managed data access objects (DAOs).
+    \item \textbf{Service/Security Layer}: Logic for password hashing and authentication.
+    \item \textbf{Resource Layer}: JAX-RS endpoints providing the REST API.
+\end{itemize}
+
+\section{Functionality and Implementation}
+
+\subsection{Authentication System}
+\textbf{Functionality}: Secure user login and session token issuance.
+\begin{itemize}
+    \item \textbf{Backend Component}: \texttt{AuthResource.java} and \texttt{PasswordService.java}.
+    \item \textbf{Function}: \texttt{login(User loginRequest)} in \texttt{AuthResource}.
+    \item \textbf{Logic}:
+    \begin{enumerate}
+        \item Receives a JSON payload containing username and password.
+        \item Calls \texttt{userRepository.findByUsername()} to retrieve the user.
+        \item Uses \texttt{passwordService.verifyPassword()} (PBKDF2) to validate credentials.
+        \item Returns a 200 OK response with a session token and user role if successful.
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Student Management (CRUD)}
+\textbf{Functionality}: Full lifecycle management of student records.
+\begin{itemize}
+    \item \textbf{Backend Component}: \texttt{StudentResource.java} and \texttt{StudentRepository.java}.
+    \item \textbf{Functions}:
+    \begin{itemize}
+        \item \textbf{Read}: \texttt{getAllStudents()} - Returns a list of all students using \texttt{studentRepository.findAll()}.
+        \item \textbf{Create/Update}: \texttt{createStudent(Student student)} - Uses \texttt{studentRepository.save()} which performs either \texttt{persist()} or \texttt{merge()}.
+        \item \textbf{Delete}: \texttt{deleteStudent(Long id)} - Uses \texttt{studentRepository.delete()} to remove a record by its primary key.
+    \end{itemize}
+\end{itemize}
+
+\section{Data Persistence}
+Persistence is managed via \texttt{persistence.xml} using the \texttt{CRUD\_PU} unit.
+\begin{itemize}
+    \item \textbf{Database}: H2 (In-memory) via WildFly's \texttt{ExampleDS}.
+    \item \textbf{Schema Generation}: Set to \texttt{drop-and-create} to ensure a fresh environment on every deployment.
+    \item \textbf{Initialization}: \texttt{import.sql} is automatically loaded to populate the database with default users and sample students.
+\end{itemize}
+
+\section{Security Implementation}
+Passwords are never stored in plain text. We utilize the \texttt{Pbkdf2PasswordHash} mechanism from Jakarta Security.
+\begin{itemize}
+    \item \textbf{Algorithm}: PBKDF2WithHmacSHA256.
+    \item \textbf{Iterations}: 2048.
+    \item \textbf{Salt Size}: 32 bytes.
+\end{itemize}
+
+\end{document}

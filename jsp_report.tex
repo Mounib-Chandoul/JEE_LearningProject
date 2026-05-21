@@ -1,0 +1,105 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{JEE Project: JSP and Servlet Implementation Report}
+\author{Gemini CLI Assistant}
+\date{May 21, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This report provides a theoretical overview of how the Student Management System would be implemented using JavaServer Pages (JSP) and Servlets. This approach leverages server-side rendering, as opposed to the client-side rendering used in the JavaFX/REST architecture.
+
+\section{JSP/Servlet Architecture}
+In a JSP-based architecture, the server handles both the business logic and the generation of the user interface (HTML).
+\begin{itemize}
+    \item \textbf{Controller (Servlets)}: Intercepts HTTP requests, interacts with repositories, and forwards data to JSPs.
+    \item \textbf{View (JSP)}: Dynamically generates HTML using data provided by the servlets.
+    \item \textbf{Model}: Reuses the existing JPA entities (\texttt{User}, \texttt{Student}).
+\end{itemize}
+
+\section{Core Components}
+
+\subsection{Authentication Servlet}
+\textbf{Description}: Handles login submissions via POST.
+\begin{itemize}
+    \item \textbf{Servlet Name}: \texttt{LoginServlet}
+    \item \textbf{URL Pattern}: \texttt{/login}
+    \item \textbf{Process}:
+    \begin{enumerate}
+        \item Retrieves \texttt{username} and \texttt{password} parameters from the request.
+        \item Injects \texttt{UserRepository} and \texttt{PasswordService}.
+        \item Validates credentials.
+        \item On success: Stores user info in \texttt{HttpSession} and redirects to \texttt{dashboard.jsp}.
+        \item On failure: Sets an error attribute and forwards back to \texttt{login.jsp}.
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Student Management Servlet}
+\textbf{Description}: Manages CRUD operations for students.
+\begin{itemize}
+    \item \textbf{Servlet Name}: \texttt{StudentServlet}
+    \item \textbf{URL Pattern}: \texttt{/students}
+    \item \textbf{Actions}:
+    \begin{itemize}
+        \item \texttt{GET}: Fetches all students and forwards to \texttt{student-list.jsp}.
+        \item \texttt{POST} (Create): Parses form data and calls \texttt{studentRepository.save()}.
+        \item \texttt{POST} (Delete): Uses a hidden \texttt{\_method} parameter or specific action parameter to call \texttt{studentRepository.delete()}.
+    \end{itemize}
+\end{itemize}
+
+\section{View Implementation (JSP)}
+
+\subsection{student-list.jsp}
+This page uses JSTL (\texttt{c:forEach}) to iterate over the student collection:
+\begin{lstlisting}[language=HTML]
+<table>
+    <c:forEach items="" var="s">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </c:forEach>
+</table>
+\end{lstlisting}
+
+\section{Conclusion}
+Transitioning the current REST backend to a JSP-based system would involve replacing the JAX-RS resources with Servlets and creating JSP templates for the UI. The core business logic and database layers (JPA and Repositories) remain completely reusable, demonstrating the flexibility of the JEE architecture.
+
+\end{document}

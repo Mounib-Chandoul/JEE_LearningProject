@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\geometry{margin=0.8in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.95}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+
+\lstset{style=mystyle}
+
+\title{\textbf{Detailed Technical Report: JEE Backend Architecture}}
+\author{Student Name: Mounib \\ Course: JEE L2-S2}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Project Overview}
+This project is a comprehensive Student Management System built on the Jakarta EE 10 platform. The backend is designed as a \textbf{RESTful API} that provides data services to a JavaFX client. It leverages \textbf{EJBs} for business logic, \textbf{JPA} for database persistence, and \textbf{JAX-RS} for network communication.
+
+\section{Core Configuration Files}
+
+\subsection{persistence.xml (The Database Heart)}
+Located in \texttt{src/main/resources/META-INF/}, this file configures the Java Persistence API.
+\begin{itemize}
+    \item \textbf{jta-data-source}: Points to \texttt{java:jboss/datasources/ExampleDS}, which is the built-in H2 database in WildFly.
+    \item \textbf{drop-and-create}: Instructs Hibernate to reset the database structure on every deploy.
+    \item \textbf{sql-load-script-source}: Automatically runs \texttt{import.sql} to seed the database with initial data.
+\end{itemize}
+
+\subsection{HelloApplication.java (The API Entry)}
+\begin{lstlisting}[language=Java]
+@ApplicationPath("/api")
+public class HelloApplication extends Application { }
+\end{lstlisting}
+\textbf{Role}: This class activates JAX-RS. The \texttt{@ApplicationPath("/api")} annotation defines the base URL for all your REST endpoints.
+
+\section{The Entity Layer (Data Models)}
+
+\subsection{User.java \& Student.java}
+These are \textbf{POJOs} (Plain Old Java Objects) annotated with \texttt{@Entity}.
+\begin{itemize}
+    \item \texttt{@Id} \& \texttt{@GeneratedValue}: Automatically manages the primary key (ID).
+    \item \texttt{@Table(name="...")}: Maps the Java class to a specific SQL table name.
+    \item \texttt{Serializable}: Allows the object to be converted into a stream of bytes for network transmission or persistence.
+\end{itemize}
+
+\section{The Repository Layer (Database Operations)}
+
+\subsection{StudentRepository.java}
+This is a \textbf{Stateless EJB} that handles SQL operations through the \texttt{EntityManager}.
+\begin{itemize}
+    \item \textbf{findAll()}: Executes a \textit{JPQL} query (\texttt{SELECT s FROM Student s}) to retrieve all records.
+    \item \textbf{save(Student s)}: Uses \texttt{persist()} if it's a new student, or \texttt{merge()} if it's an update. This is the core of the **Create/Update** functionality.
+    \item \textbf{delete(Long id)}: Finds the object in the database and calls \texttt{remove()}.
+\end{itemize}
+
+\section{The Resource Layer (REST API Endpoints)}
+
+\subsection{AuthResource.java (Authentication Logic)}
+\textbf{Function: login(User request)}
+\begin{enumerate}
+    \item Receives JSON from the JavaFX client.
+    \item Calls \texttt{findByUsername()} to check if the user exists.
+    \item \textbf{Security Check}: Calls \texttt{passwordService.verifyPassword()}.
+    \item \textbf{Response}: Returns a JSON object containing a session token and the user's role.
+\end{enumerate}
+
+\subsection{StudentResource.java (Data Exchange)}
+This class connects the network to the database logic.
+\begin{itemize}
+    \item \texttt{@GET}: Returns the list of students. Jakarta EE automatically converts the Java List into a \textbf{JSON Array}.
+    \item \texttt{@POST}: Receives a new student as JSON, converts it to a Java Object, and saves it.
+    \item \texttt{@DELETE}: Receives an ID from the URL path and removes the record.
+\end{itemize}
+
+\section{Security Implementation}
+
+\subsection{PasswordService.java}
+Uses the \texttt{Pbkdf2PasswordHash} interface from Jakarta Security.
+\begin{itemize}
+    \item \textbf{Hashing}: Transforms a plain password into a secure string using 2048 iterations and a 32-byte salt.
+    \item \textbf{Verification}: Compares the input password against the stored hash safely.
+\end{itemize}
+
+\section{The REST-to-Client Connection}
+The communication is handled via the \textbf{JSON (JavaScript Object Notation)} format.
+\begin{itemize}
+    \item \textbf{Serialization}: The Backend transforms Java objects into JSON text.
+    \item \textbf{Deserialization}: The Frontend (JavaFX) receives this text and parses it back into Java models.
+    \item \textbf{HTTP Methods}: 
+    \begin{itemize}
+        \item \texttt{GET} for reading data.
+        \item \texttt{POST} for creating data.
+        \item \texttt{DELETE} for removing data.
+    \end{itemize}
+\end{itemize}
+
+\section{Conclusion}
+This architecture ensures that the Backend is \textbf{Stateless} and \textbf{Independent}. This means you could theoretically replace your JavaFX frontend with a Web or Mobile app, and the Backend would continue to work perfectly without a single line of code being changed.
+
+\end{document}
