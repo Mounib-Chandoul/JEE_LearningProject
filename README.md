@@ -1,80 +1,104 @@
-# ?? JEE Student Management System
+# 🧩 JEE Student Management System
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
-[![Jakarta EE](https://img.shields.io/badge/Jakarta%20EE-10-blue.svg)](https://jakarta.ee/)
-[![JavaFX](https://img.shields.io/badge/JavaFX-17-green.svg)](https://openjfx.io/)
-[![WildFly](https://img.shields.io/badge/WildFly-30+-red.svg)](https://www.wildfly.org/)
+<div align="center">
 
-A full-stack enterprise application for managing student records, built with **Jakarta EE 10** (Backend) and **JavaFX** (Frontend). This project demonstrates a decoupled architecture using RESTful services, secure authentication, and JPA persistence.
+[![Java](https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=java&logoColor=white)](https://www.oracle.com/java/)
+[![Jakarta EE](https://img.shields.io/badge/Jakarta%20EE-10-0082C3?style=for-the-badge)](https://jakarta.ee/)
+[![JavaFX](https://img.shields.io/badge/JavaFX-17-3B7EB6?style=for-the-badge)](https://openjfx.io/)
+[![WildFly](https://img.shields.io/badge/WildFly-30%2B-EA283C?style=for-the-badge)](https://www.wildfly.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-9ECE6A?style=for-the-badge)](LICENSE)
 
-## ?? Architecture Overview
+</div>
 
-The project is split into two main modules managed by a parent Maven POM:
-
-- **BackEnd (WAR)**: A Jakarta EE 10 REST API.
-  - **JAX-RS**: RESTful endpoints for student and auth management.
-  - **EJB**: Stateless beans for business logic.
-  - **JPA (Hibernate)**: Persistence layer with H2 in-memory database.
-  - **Jakarta Security**: PBKDF2 password hashing.
-- **FrontEnd (JAR)**: A modern JavaFX desktop client.
-  - **MVC Pattern**: FXML-based views with dedicated controllers.
-  - **Asynchronous HTTP**: Uses Java 11 HttpClient for non-blocking API calls.
-
-## ? Key Features
-
-- ?? **Secure Authentication**: Multi-role login system (ADMIN, TEACHER, USER).
-- ?? **Student CRUD**: Full Create, Read, Update, and Delete functionality.
-- ?? **Interactive Dashboard**: Real-time table updates and data binding.
-- ? **Auto-Initialization**: Database auto-seeds on startup via import.sql.
-- ?? **Modern UI**: Styled with CSS and responsive FXML layouts.
-
-## ??? Tech Stack
-
-- **Backend**: Jakarta EE 10, JAX-RS, EJB 3.2, JPA 3.0, Hibernate 6.4.
-- **Frontend**: JavaFX 17, FXML, CSS.
-- **Database**: H2 (In-memory, via ExampleDS).
-- **Build Tool**: Apache Maven 3.9+.
-- **Server**: WildFly 30+ (Runtime).
-
-## ?? Installation & Setup
-
-### Prerequisites
-
-- JDK 17
-- Maven 3.9+
-- WildFly Application Server
-
-### 1. Clone & Build
-
-`ash git clone <your-repo-url> cd JJE_PROJECT .\build.cmd `
-
-### 2. Deploy Backend
-
-1. Start your WildFly server.
-2. Deploy the generated WAR file: BackEnd\target\JJE_PROJECT-1.0-SNAPSHOT.war.
-3. Verify the API is live at http://localhost:8080/JJE_PROJECT-1.0-SNAPSHOT/api/hello-world.
-
-### 3. Run Frontend
-
-`ash .\run-frontend.cmd `
-
-## ?? Default Credentials
-
-
-| Username | Password  | Role    |
-| :------- | :-------- | :------ |
-| dmin    | dmin     | ADMIN   |
-| mounib   | mounib123 | TEACHER |
-| user     | password  | USER    |
-
-## ?? Project Structure
-
-`	ext JJE_PROJECT/ +-- BackEnd/                # Jakarta EE 10 API �   +-- src/main/java/      # EJB, JPA, JAX-RS logic �   +-- src/main/resources/ # Persistence & Import SQL +-- FrontEnd/               # JavaFX Desktop Client �   +-- src/main/java/      # Controllers & HTTP Clients �   +-- src/main/resources/ # FXML Views & CSS +-- pom.xml                 # Maven Parent Configuration +-- build.cmd               # Automation Script `
-
-## ?? License
-
-Distributed under the MIT License. See LICENSE for more information.
+A full-stack enterprise application for managing student records: a **Jakarta
+EE 10 REST backend** deployed on WildFly and a **JavaFX desktop client**. Built
+as an L2-S2 JEE project to practise JAX-RS, JPA, EJB, security and decoupled
+client/server design.
 
 ---
 
-**Developed by Mounib** - *JEE L2-S2 Project*
+## Architecture
+
+```text
+┌────────────────────────┐        HTTP/JSON        ┌────────────────────────┐
+│  JavaFX desktop client │ ──────────────────────▶ │  Jakarta EE REST API   │
+│  - FXML views          │                         │  - JAX-RS resources    │
+│  - controllers         │  ◀───────────────────── │  - EJB business logic  │
+│  - Java HttpClient     │       student data      │  - JPA / Hibernate     │
+└────────────────────────┘                         │  - H2 (ExampleDS)      │
+                                                    └────────────────────────┘
+```
+
+- **BackEnd (WAR)** — JAX-RS endpoints for auth and students, stateless EJBs,
+  JPA persistence, PBKDF2 password hashing.
+- **FrontEnd (JAR)** — FXML views with dedicated controllers and non-blocking
+  calls through Java 11's `HttpClient`.
+
+---
+
+## Features
+
+- Multi-role authentication: `ADMIN`, `TEACHER`, `USER`.
+- Full student CRUD from the desktop client.
+- Live-updating table with data binding.
+- Database auto-seeded on startup via `import.sql`.
+- Styled FXML layouts with responsive CSS.
+
+---
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Jakarta EE 10, JAX-RS, EJB 3.2, JPA 3.0, Hibernate 6.4 |
+| Frontend | JavaFX 17, FXML, CSS |
+| Database | H2 in-memory (WildFly `ExampleDS`) |
+| Server | WildFly 30+ |
+| Build | Maven 3.9+ (parent POM with two modules) |
+
+---
+
+## Build & run
+
+Prerequisites: JDK 17, Maven 3.9+, WildFly 30+.
+
+```bash
+# 1. build both modules
+.\build.cmd          # or: mvn clean package
+
+# 2. start WildFly and deploy
+#    BackEnd\target\jje_project_parent-BackEnd-1.0-SNAPSHOT.war
+
+# 3. verify the API
+#    http://localhost:8080/<deployed-name>/api/hello-world
+
+# 4. launch the desktop client
+.\run-frontend.cmd
+```
+
+### Default credentials
+
+| Username | Password | Role |
+|---|---|---|
+| `admin` | `admin` | ADMIN |
+| `mounib` | `mounib123` | TEACHER |
+| `user` | `password` | USER |
+
+> Change these before deploying anywhere beyond localhost.
+
+---
+
+## Layout
+
+```text
+JEE_LearningProject/
+├── pom.xml                # parent POM
+├── BackEnd/               # Jakarta EE WAR: resources, EJB, JPA, JAX-RS
+├── FrontEnd/              # JavaFX JAR: controllers, FXML views, CSS
+├── build.cmd / run-frontend.cmd
+└── *_report.tex           # project documentation sources
+```
+
+## License
+
+[MIT](LICENSE).
